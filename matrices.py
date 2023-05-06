@@ -23,7 +23,7 @@ def Pei_function(alpha, n):
             n: an integer
     output: the Pei matrix with dimension n x n
     '''
-    Pei_matrix=alpha*np.eye(n)+np.ones((4,4))
+    Pei_matrix=alpha*np.eye(n)+np.ones((n,n))
     return Pei_matrix
 
 def VFH_function(K):
