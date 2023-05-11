@@ -1,5 +1,6 @@
 import numpy as np 
 from math import fabs
+from warnings import warn
 
 def T_tilda(T, gamma, a):
     """
@@ -81,3 +82,101 @@ def check_ortho(X, tol=1e-8):
                 if np.abs(prod[i,j])>tol:
                     return False
     return True
+
+def algorithm_1(A, u, function, maxit=50, epsilon=1e-5):
+    # to do: save T_j as sparse
+    '''
+    Implements algorithm 1 from Bai et al. It computes a lower/upper bound of the quantity u^T f(A) u by using the Gauss-Radau rules
+    INPUT:
+    - A: a symmetric positive definite matrix of size n times n for some n, with eigenvalues in [a,b]
+    - u: vector of size n 
+    - f: smooth function in the interval [a,b]
+    - maxit: maximum number of iteration
+    - epsilon: tolerance between two iterations
+    
+    OUTPUT:
+    - [U,L]: Upper and Lower bound of the quantity u^T f(A) u by using the Gauss-Radau rule.
+    '''
+    # Remark 1: compute a and b 
+    interval = Gerschgorin(A)
+
+    if interval[0]<=0:
+        interval[0] = 1e-4
+    print("a=", interval[0])
+    print("b=", interval[1])
+    if (np.linalg.eigvals(A)<=0).any():
+        warn("The matrix A should be positive definite.")
+        print("eigenvalues of A:", np.linalg.eigvals(A))
+    if not (A==A.T).all():
+        warn("A is not symmetric. Please choose A such that A=A.T")
+        print("A =",A)
+
+    # set the first variables
+    x_j1 = u/np.linalg.norm(u)    
+    gamma_j1 = 0.0
+    I_j = np.zeros(2)
+    I_j1 = np.zeros(2)
+
+    # stopping criteria for I_j^U and I_j^L
+    above_thresh_mask = np.array([True, True]) 
+    indices = np.arange(2)
+
+    # Save X as a matrix (for re-orthogonalization)
+    n=len(u) 
+    X=np.zeros((n, maxit+1))
+    X[:,0] = x_j1
+
+    # iteration
+    for j in range(maxit):
+        w = A@X[:,j]
+        alpha_j=X[:,j].T@w
+        r_j = w - alpha_j*X[:,j]
+        if j>0:
+            r_j = r_j - gamma_j1*X[:,j-1]
+        
+        #reorthogonlization to avoid roundoff error encured by Lanczos
+        alphas=X.T@r_j
+        r_j=r_j-X@alphas
+        alpha_j=alpha_j+alphas[-1]
+        gamma_j = np.linalg.norm(r_j)
+
+        # build T_j:
+        if j==0:
+            T_j = np.array([alpha_j])
+        else:
+            # horizontal array [0, ..., 0, gamma_{j-1}]
+            temp_h = np.expand_dims(np.zeros(T_j.shape[0]),1)
+            temp_h[-1] = gamma_j1
+            # vertical array [0, ..., 0, gamma_{j-1}, alpha_j].T
+            temp_v = np.expand_dims(np.zeros(T_j.shape[0] + 1),1)
+            temp_v[-1] = alpha_j
+            temp_v[-2] = gamma_j1
+            # new T_j:
+            T_j = np.hstack((np.vstack((T_j, temp_h.T)), temp_v))
+        
+        # for Gauss Radau, a or b have to be zeros of the polynomial, i.e. must be eigenvalues of T_tilda_{j'}:
+        for i in indices[above_thresh_mask]: # for lower and upper bounds
+            T_tilda_j = T_tilda(T_j, gamma_j, interval[i])
+            
+            # compute eigenvalues of T_tilda_j:            
+            theta_k, eig_vec = np.linalg.eigh(T_tilda_j)
+            w_k_square = eig_vec[0, :]*eig_vec[0,:]
+            I_j[i] = function(theta_k).dot(w_k_square)
+
+            # stopping criterion
+            if (j>0) & (np.abs(I_j[i] - I_j1[i]) <= epsilon*np.abs(I_j[i])):
+                above_thresh_mask[i] = False
+                
+        # check stopping criterion  
+        if not above_thresh_mask.any(): #when both are false: break.
+            break
+        
+        x_j1 = r_j/gamma_j
+        X[:,j+1]=x_j1.copy()
+        I_j1 = I_j.copy()
+        gamma_j1 = gamma_j.copy()
+        
+        if not check_ortho(X[:,0:j+1]):
+            warn("The algorithm does not build an orthonormal basis, at j ="+str(j))
+
+    return u.dot(u)*I_j   
