@@ -102,8 +102,8 @@ def algorithm_1(A, u, function, maxit=50, epsilon=1e-5):
 
     if interval[0]<=0:
         interval[0] = 1e-4
-    print("a=", interval[0])
-    print("b=", interval[1])
+    #print("a=", interval[0])  Armelle: I've put these two as comments
+    #print("b=", interval[1])
     if (np.linalg.eigvals(A)<=0).any():
         warn("The matrix A should be positive definite.")
         print("eigenvalues of A:", np.linalg.eigvals(A))
@@ -180,3 +180,57 @@ def algorithm_1(A, u, function, maxit=50, epsilon=1e-5):
             warn("The algorithm does not build an orthonormal basis, at j ="+str(j))
 
     return u.dot(u)*I_j   
+
+def algorithm_2(A, m, p, function, epsilon):
+    '''
+    A: a symmetric positive definite matrix of size n times n for some n  
+    m: the chosen number of samples
+    p: the chosen probabibilty for the confidence interval, the trace of function(A) will be in the bound with proba
+       AT LEAST p 
+    
+    return: I: an unbiased estimator of the quantity tr(f(A))
+            (L_p, U_p): the bounds of the confidence interval of tr(f(A)) with proba p 
+    '''
+    
+    if np.any(A!=A.T):
+        raise ValueError('The matrix isnt symmetric')
+        
+    if np.any(np.linalg.eigvals(A) <= 0):
+        raise ValueError('The matrix isnt positive definite')
+        
+    if p<=0 or p>=1:
+        raise ValueError('we dont have 0<p<1')
+        
+    if m>A.shape[0]/2: #arbitrary choice
+        print('Notice that for the use of the Montecarlo method to be justified, its better to have m<=A.shape[0]/2')
+        
+    n=A.shape[0]
+    L=np.zeros(m) 
+    U=np.zeros(m) 
+    L_min=10^8 #dummy value to start with for L_min
+    U_max=-10^8 #dummy value to start with, for U_max
+    
+    
+    for j in range(m):
+        z = np.random.uniform(0,1,n)
+        z[z<0.5]=-1
+        z[z>=0.5]=1
+        #apply algorithm 1 to obtain a lower bound L_j and an upper bound U_j and set 
+        
+        #algorithm 1 will output z.T@function(A)@z and we know from the paper that this is an unbiased estimator of 
+        #tr(function(A))
+        L[j], U[j]=algorithm_1(A=A, u=z, function=function, maxit=200, epsilon=epsilon)
+        L_j, U_j=L[j],U[j]
+        
+        #computing the mean as we have an unbiased estimator
+        I=np.ones(m).T@(L+U)/(2*(j+1)) #need to add +1 because of indexization in python. The first vector multiplication
+                                       #sums all the non-zero elements of L+U
+        L_min=np.minimum(L_min,L_j)
+        U_max=np.maximum(U_max,U_j)
+        eta_2=(-0.5*(j+1)*(U_max-L_min)**2)*(np.log(1-p)/2)
+        
+        #computing the mean as we have an unbiased estimator
+        L_p_j= np.ones(m).T@L/(j+1)-np.sqrt(eta_2)/(j+1)
+        U_p_j= np.ones(m).T@U/(j+1)+np.sqrt(eta_2)/(j+1)
+        
+    return U_p_j, L_p_j, I  

@@ -26,7 +26,7 @@ def Pei_function(alpha, n):
     Pei_matrix=alpha*np.eye(n)+np.ones((n,n))
     return Pei_matrix
 
-#VFH not positive definite! Have to work on this
+#VFH not positive definite! However, -VFH is positive definite-> I think mistake in the paper. Should account for this
 def VFH_function(K):
     '''
     input: K: the number of fractal iterations we want to use to define our matrix 
