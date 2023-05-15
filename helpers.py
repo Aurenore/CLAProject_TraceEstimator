@@ -1,6 +1,7 @@
 import numpy as np 
 from math import fabs
 from warnings import warn
+import time
 
 def T_tilda(T, gamma, a):
     """
@@ -234,3 +235,65 @@ def algorithm_2(A, m, p, function, epsilon):
         U_p_j= np.ones(m).T@U/(j+1)+np.sqrt(eta_2)/(j+1)
         
     return U_p_j, L_p_j, I  
+
+
+def numerical_experiments(matrix):
+    '''
+    runs the numerical experiments and returns 2 array with the running time and the value found for each experiment
+    
+    matrix: numpy array the matrix we want to study
+    '''
+    #defining the required values
+    
+    n=matrix.shape[0]
+    matrix_running_time=np.zeros(4)
+    matrix_trace_value=np.zeros(4)
+    tol = 1e-5
+    
+    def f(x):
+        return 1/x
+    
+    #running time of algo 2
+
+    start=time.time()
+    L=algorithm_2(matrix,m=int(n/2),p=0.5, function=f, epsilon=tol) #for some m,p to tune 
+    execution_algo_2=time.time()-start 
+
+    matrix_running_time[0]=execution_algo_2
+    matrix_trace_value[0]=L[2]
+    
+    #running time using built in numpy functions
+    start=time.time()
+    Tr_A_inv=np.trace(np.linalg.inv(matrix))
+    execution_built_in=time.time()-start 
+    matrix_running_time[1]=execution_built_in
+    matrix_trace_value[1]=Tr_A_inv
+    
+    #running time using n linear systems
+
+    start=time.time()
+    Tr_A_inv=0
+
+    for i in range (n):
+        e=np.zeros(n)
+        e[i]=1
+        Tr_A_inv+=e.T@np.linalg.solve(matrix,e)
+
+    execution_linear=time.time()-start
+    matrix_running_time[2]=execution_linear
+    matrix_trace_value[2]=Tr_A_inv
+    
+    #using algorithm 1
+    start=time.time()
+    Tr_A_inv=0
+
+    for i in range (n):
+        e=np.zeros(n)
+        e[i]=1
+        Tr_A_inv+=algorithm_1(matrix,e,function=f, maxit=50, epsilon=tol)
+
+    execution_algo_1=time.time()-start
+    matrix_running_time[3]=execution_algo_1
+    matrix_trace_value[3]=(Tr_A_inv[0]+Tr_A_inv[1])/2
+    
+    return matrix_running_time, matrix_trace_value
