@@ -2,6 +2,7 @@ import numpy as np
 from math import fabs
 from warnings import warn
 import time
+import matplotlib.pyplot as plt
 
 def T_tilda(T, gamma, a):
     """
@@ -297,3 +298,36 @@ def numerical_experiments(matrix):
     matrix_trace_value[3]=(Tr_A_inv[0]+Tr_A_inv[1])/2
     
     return matrix_running_time, matrix_trace_value
+
+def graph(matrix, Ms):
+    '''
+    Plot the exact solutions and the estimations given by algorithm 2, applied on the matrix given as argument. 
+
+    matrix: numpy array the matrix we want to study
+    Ms: list of the parameter 'm' we would like to study 
+    '''
+    #defining the required values
+    
+    n=matrix.shape[0]
+    tol = 1e-5
+    
+    def f(x):
+        return 1/x
+    
+    Tr_A_inv=np.trace(np.linalg.inv(matrix))
+    U_p = np.zeros(len(Ms))
+    L_p = np.zeros(len(Ms))
+    I = np.zeros(len(Ms))
+
+    for k, m in enumerate(Ms):
+        U_p[k], L_p[k], I[k] = algorithm_2(matrix, m=m, p=0.95, function=f, epsilon=tol) 
+
+    fig = plt.figure(figsize=(8,8))
+    plt.plot(Ms, Tr_A_inv*np.ones(len(Ms)))
+    plt.plot(Ms, U_p, '-.')
+    plt.plot(Ms, L_p, '-.')
+    plt.plot(Ms, I, '-x')
+    plt.legend(['exact value', 'lower bound', 'upper bound', 'estimated value'])
+    plt.xlabel('Number of samples')
+    plt.ylabel('Trace')
+    plt.title('Matrix of size ' + str(n) + 'x' + str(n)) 
