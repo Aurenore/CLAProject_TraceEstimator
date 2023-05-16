@@ -299,7 +299,7 @@ def numerical_experiments(matrix):
     
     return matrix_running_time, matrix_trace_value
 
-def graph(matrix, Ms):
+def graph(matrix, Ms, savefile):
     '''
     Plot the exact solutions and the estimations given by algorithm 2, applied on the matrix given as argument. 
 
@@ -331,3 +331,4 @@ def graph(matrix, Ms):
     plt.xlabel('Number of samples')
     plt.ylabel('Trace')
     plt.title('Matrix of size ' + str(n) + 'x' + str(n)) 
+    plt.savefig('figures/' + savefile +'.png')
