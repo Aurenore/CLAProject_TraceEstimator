@@ -238,18 +238,19 @@ def algorithm_2(A, m, p, function, epsilon):
     return U_p_j, L_p_j, I  
 
 
-def numerical_experiments(matrix):
+def numerical_experiments(matrix, tol):
     '''
     runs the numerical experiments and returns 2 array with the running time and the value found for each experiment
     
-    matrix: numpy array the matrix we want to study
+        input: matrix: numpy array the matrix we want to study
+    
+        output: list of the running time for each numerical experiment for matrix list of the computed value
     '''
     #defining the required values
     
     n=matrix.shape[0]
     matrix_running_time=np.zeros(4)
     matrix_trace_value=np.zeros(4)
-    tol = 1e-5
     
     def f(x):
         return 1/x
