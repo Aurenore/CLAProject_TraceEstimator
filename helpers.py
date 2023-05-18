@@ -300,7 +300,7 @@ def numerical_experiments(matrix, tol):
     
     return matrix_running_time, matrix_trace_value
 
-def graph(matrix, Ms, savefile):
+def graph(matrix, Ms, f, I_ex, matrixlabel, savefile, ylabel):
     '''
     Plot the exact solutions and the estimations given by algorithm 2, applied on the matrix given as argument. 
 
@@ -312,24 +312,22 @@ def graph(matrix, Ms, savefile):
     n=matrix.shape[0]
     tol = 1e-5
     
-    def f(x):
-        return 1/x
-    
-    Tr_A_inv=np.trace(np.linalg.inv(matrix))
     U_p = np.zeros(len(Ms))
     L_p = np.zeros(len(Ms))
     I = np.zeros(len(Ms))
 
     for k, m in enumerate(Ms):
+        if k%10==0:
+            print("k =", k)
         U_p[k], L_p[k], I[k] = algorithm_2(matrix, m=m, p=0.95, function=f, epsilon=tol) 
 
     fig = plt.figure(figsize=(8,8))
-    plt.plot(Ms, Tr_A_inv*np.ones(len(Ms)))
+    plt.plot(Ms, I_ex*np.ones(len(Ms)))
     plt.plot(Ms, U_p, '-.')
     plt.plot(Ms, L_p, '-.')
     plt.plot(Ms, I, '-x')
-    plt.legend(['exact value', 'lower bound', 'upper bound', 'estimated value'])
+    plt.legend(['exact value', 'upper bound', 'lower bound', 'estimated value'])
     plt.xlabel('Number of samples')
-    plt.ylabel('Trace')
-    plt.title('Matrix of size ' + str(n) + 'x' + str(n)) 
+    plt.ylabel(ylabel)
+    plt.title(matrixlabel +' (' + str(n) + 'x' + str(n)+')') 
     plt.savefig('figures/' + savefile +'.png')
