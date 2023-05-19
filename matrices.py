@@ -85,14 +85,14 @@ def VFH_function(K):
     
         #Since we have a lot of block matrices, easier to explicitely complete it
         H_k=block_diag(*([H] * 5))
-        H_k[size:2*size, 0:size]=V_1.T
-        H_k[2*size:3*size, 0:size]=V_2.T
-        H_k[3*size:4*size, 0:size]=V_3.T
-        H_k[4*size:5*size, 0:size]=V_4.T
-        H_k[0:size, size:2*size]=V_1
-        H_k[0:size, 2*size:3*size]=V_2
-        H_k[0:size, 3*size:4*size]=V_3
-        H_k[0:size, 4*size:5*size]=V_4
+        H_k[size:2*size, 0:size]=V_1
+        H_k[2*size:3*size, 0:size]=V_2
+        H_k[3*size:4*size, 0:size]=V_3
+        H_k[4*size:5*size, 0:size]=V_4
+        H_k[0:size, size:2*size]=V_1.T
+        H_k[0:size, 2*size:3*size]=V_2.T
+        H_k[0:size, 3*size:4*size]=V_3.T
+        H_k[0:size, 4*size:5*size]=V_4.T
     
         H=H_k
     return H
