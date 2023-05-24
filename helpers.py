@@ -510,7 +510,7 @@ def graph_algo1(A, u, matrix_label, savefile, maxit=100, epsilon=1e-5):
 
     Ms = np.arange(j)
     I_ex = u.dot(np.linalg.inv(A).dot(u))
-    fig = plt.figure(figsize=(8,8))
+    fig = plt.figure(figsize=(4,4))
     plt.plot(Ms, I_ex*np.ones(j))
     plt.plot(Ms, U_p[:j], '-.')
     plt.plot(Ms, L_p[:j], '-.')
