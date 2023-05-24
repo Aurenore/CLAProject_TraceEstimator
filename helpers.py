@@ -238,7 +238,7 @@ def algorithm_2(A, m, p, function, epsilon):
     return U_p_j, L_p_j, I  
 
 
-def numerical_experiments(matrix, tol):
+def numerical_experiments_old(matrix,tol):
     '''
     runs the numerical experiments and returns 2 array with the running time and the value found for each experiment
     
@@ -299,6 +299,84 @@ def numerical_experiments(matrix, tol):
     matrix_trace_value[3]=(Tr_A_inv[0]+Tr_A_inv[1])/2
     
     return matrix_running_time, matrix_trace_value
+
+def numerical_experiments(matrix, matrix_label, savefile):
+    '''
+    runs the numerical experiments and returns 2 array with the running time and the value found for each experiment
+    
+        input: matrix: numpy array the matrix we want to study
+    
+        output: list of the running time for each numerical experiment for matrix list of the computed value
+    '''
+    #defining the required values
+    
+    n=matrix.shape[0]
+    matrix_running_time=np.zeros(8)
+    matrix_trace_value=np.zeros(8)
+    
+    def f(x):
+        return 1/x
+    
+    tol=[1e-8,1e-5, 1e-1]
+    
+    #using algorithm 1
+    
+    for k in range(len(tol)):
+        start=time.time()
+        Tr_A_inv=0
+
+        for i in range (n):
+            e=np.zeros(n)
+            e[i]=1
+            Tr_A_inv+=algorithm_1(matrix,e,function=f, maxit=50, epsilon=tol[k])
+
+        execution_algo_1=time.time()-start
+        matrix_running_time[k]=execution_algo_1
+        matrix_trace_value[k]=(Tr_A_inv[0]+Tr_A_inv[1])/2
+    
+    #running time of algo 2
+
+    for k in range(len(tol)):
+        start=time.time()
+        L=algorithm_2(matrix,m=int(n/2),p=0.5, function=f, epsilon=tol[k]) #for some m,p to tune 
+        execution_algo_2=time.time()-start 
+
+        matrix_running_time[3+k]=execution_algo_2
+        matrix_trace_value[3+k]=L[2]
+    
+    #running time using built in numpy functions
+    start=time.time()
+    Tr_A_inv=np.trace(np.linalg.inv(matrix))
+    execution_built_in=time.time()-start 
+    matrix_running_time[6]=execution_built_in
+    matrix_trace_value[6]=Tr_A_inv
+    
+    #running time using n linear systems
+
+    start=time.time()
+    Tr_A_inv=0
+
+    for i in range (n):
+        e=np.zeros(n)
+        e[i]=1
+        Tr_A_inv+=e.T@np.linalg.solve(matrix,e)
+
+    execution_linear=time.time()-start
+    matrix_running_time[7]=execution_linear
+    matrix_trace_value[7]=Tr_A_inv
+    
+    fig, axs=plt.subplots(2,1, figsize= (20,25), sharey = False, sharex = False)
+    axs[0].bar(['algorithm_1_tol_1e-8', 'algorithm_1_tol_1e-5', 'algorithm_1_tol_1e-1','algorithm_2_tol_1e-8', 'algorithm_2_tol_1e-5', 'algorithm_2_tol_1e-1','built_in_numpy', 'linear systems'], matrix_running_time)
+    axs[0].set_yscale('log')
+    axs[0].set_title('running time differences for '+ matrix_label, fontsize=12)
+    
+    axs[1].bar(['algorithm_1_tol_1e-8', 'algorithm_1_tol_1e-5', 'algorithm_1_tol_1e-1','algorithm_2_tol_1e-8', 'algorithm_2_tol_1e-5', 'algorithm_2_tol_1e-1','built_in_numpy', 'linear systems'], matrix_trace_value)
+    axs[1].set_yscale('log')
+    axs[1].set_title('computed value differences for '+ matrix_label, fontsize=12)
+    
+    plt.savefig('figures/' + savefile +'.png')
+    
+    return
 
 def graph(matrix, Ms, f, I_ex, matrixlabel, savefile, ylabel):
     '''
