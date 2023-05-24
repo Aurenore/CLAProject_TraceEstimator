@@ -519,4 +519,4 @@ def graph_algo1(A, u, matrix_label, savefile, maxit=100, epsilon=1e-5):
     plt.ylabel(r'$\log(u^\top A^{-1} u)$')
     plt.title(matrix_label +' (' + str(n) + 'x' + str(n)+')') 
     plt.yscale('log')
-    plt.savefig('figures/' +'algo1_'+ savefile +'.png')
+    plt.savefig('figures/' +'algo1_'+ savefile +'.png', bbox_inches='tight')
