@@ -391,7 +391,7 @@ def graph(matrix, Ms, f, I_ex, matrixlabel, savefile, ylabel):
     #defining the required values
     
     n=matrix.shape[0]
-    tol = 1e-5
+    tol = 1e-4
     
     U_p = np.zeros(len(Ms))
     L_p = np.zeros(len(Ms))
