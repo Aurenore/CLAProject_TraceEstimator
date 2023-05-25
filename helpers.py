@@ -3,6 +3,7 @@ from math import fabs
 from warnings import warn
 import time
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 
 def T_tilda(T, gamma, a):
     """
@@ -221,7 +222,7 @@ def algorithm_2(A, m, p, function, epsilon):
         
         #algorithm 1 will output z.T@function(A)@z and we know from the paper that this is an unbiased estimator of 
         #tr(function(A))
-        L[j], U[j]=algorithm_1(A=A, u=z, function=function, maxit=200, epsilon=epsilon)
+        L[j], U[j]=algorithm_1(A=A, u=z, function=function, maxit=50, epsilon=epsilon)
         L_j, U_j=L[j],U[j]
         
         #computing the mean as we have an unbiased estimator
@@ -258,7 +259,7 @@ def numerical_experiments_old(matrix,tol):
     #running time of algo 2
 
     start=time.time()
-    L=algorithm_2(matrix,m=int(n/2),p=0.5, function=f, epsilon=tol) #for some m,p to tune 
+    L=algorithm_2(matrix,m=50,p=0.5, function=f, epsilon=tol) #for some m,p to tune 
     execution_algo_2=time.time()-start 
 
     matrix_running_time[0]=execution_algo_2
@@ -338,7 +339,7 @@ def numerical_experiments(matrix, matrix_label, savefile):
 
     for k in range(len(tol)):
         start=time.time()
-        L=algorithm_2(matrix,m=int(n/2),p=0.5, function=f, epsilon=tol[k]) #for some m,p to tune 
+        L=algorithm_2(matrix,m=50,p=0.5, function=f, epsilon=tol[k]) #for some m,p to tune 
         execution_algo_2=time.time()-start 
 
         matrix_running_time[3+k]=execution_algo_2
@@ -365,14 +366,16 @@ def numerical_experiments(matrix, matrix_label, savefile):
     matrix_running_time[7]=execution_linear
     matrix_trace_value[7]=Tr_A_inv
     
-    fig, axs=plt.subplots(2,1, figsize= (20,25), sharey = False, sharex = False)
-    axs[0].bar(['algorithm_1_tol_1e-8', 'algorithm_1_tol_1e-5', 'algorithm_1_tol_1e-1','algorithm_2_tol_1e-8', 'algorithm_2_tol_1e-5', 'algorithm_2_tol_1e-1','built_in_numpy', 'linear systems'], matrix_running_time)
-    axs[0].set_yscale('log')
-    axs[0].set_title('running time differences for '+ matrix_label, fontsize=12)
+    mpl.rcParams["font.size"] = 20
     
-    axs[1].bar(['algorithm_1_tol_1e-8', 'algorithm_1_tol_1e-5', 'algorithm_1_tol_1e-1','algorithm_2_tol_1e-8', 'algorithm_2_tol_1e-5', 'algorithm_2_tol_1e-1','built_in_numpy', 'linear systems'], matrix_trace_value)
+    fig, axs=plt.subplots(2,1, figsize= (20,25), sharey = False, sharex = False)
+    axs[0].bar(['algo_1_1e-8', 'algo_1_1e-5', 'algo_1_1e-1','algo_2_1e-8', 'algo_2_1e-5', 'algo_2_1e-1','tr(A-1)', 'lin. systems'], matrix_running_time)
+    axs[0].set_yscale('log')
+    axs[0].set_title('running time differences for '+ matrix_label, fontsize=42)
+    
+    axs[1].bar(['algo_1_1e-8', 'algo_1_1e-5', 'algo_1_1e-1','algo_2_1e-8', 'algo_2_1e-5', 'algo_2_1e-1','tr(A-1)', 'lin. systems'], matrix_trace_value)
     axs[1].set_yscale('log')
-    axs[1].set_title('computed value differences for '+ matrix_label, fontsize=12)
+    axs[1].set_title('computed value differences for '+ matrix_label, fontsize=42)
     
     plt.savefig('figures/' + savefile +'.png')
     
