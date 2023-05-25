@@ -518,7 +518,7 @@ def graph_algo1(A, u, matrix_label, savefile, maxit=100, epsilon=1e-5):
     plt.plot(Ms, U_p[:j], '-.')
     plt.plot(Ms, L_p[:j], '-.')
     plt.legend(['exact value', 'upper bound', 'lower bound'])
-    plt.xlabel('Number of iteration')
+    plt.xlabel('Number of iterations')
     plt.ylabel(r'$u^\top A^{-1} u$')
     plt.title(matrix_label +' (' + str(n) + 'x' + str(n)+')') 
     plt.yscale('log')
