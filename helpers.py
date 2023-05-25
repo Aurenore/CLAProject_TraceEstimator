@@ -413,7 +413,7 @@ def graph(matrix, Ms, f, I_ex, matrixlabel, savefile, ylabel):
     plt.title(matrixlabel +' (' + str(n) + 'x' + str(n)+')') 
     plt.savefig('figures/' + savefile +'.png')
 
-def graph_algo1(A, u, matrix_label, savefile, maxit=100, epsilon=1e-5):
+def graph_algo1(A, u, matrix_label, savefile, maxit=100, epsilon=1e-4):
     '''
     Plot the exact solution and the lower and upper bounds estimations of u^t A^{-1} u given by algorithm 1, applied on the matrix given as argument. 
 
