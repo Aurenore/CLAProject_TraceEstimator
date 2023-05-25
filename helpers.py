@@ -404,7 +404,7 @@ def graph(matrix, Ms, f, I_ex, matrixlabel, savefile, ylabel):
             print("k =", k)
         U_p[k], L_p[k], I[k] = algorithm_2(matrix, m=m, p=0.95, function=f, epsilon=tol) 
 
-    fig = plt.figure(figsize=(8,8))
+    fig = plt.figure(figsize=(4,4))
     plt.plot(Ms, I_ex*np.ones(len(Ms)))
     plt.plot(Ms, U_p, '-.')
     plt.plot(Ms, L_p, '-.')
@@ -413,7 +413,7 @@ def graph(matrix, Ms, f, I_ex, matrixlabel, savefile, ylabel):
     plt.xlabel('Number of samples')
     plt.ylabel(ylabel)
     plt.title(matrixlabel +' (' + str(n) + 'x' + str(n)+')') 
-    plt.savefig('figures/' + savefile +'.png')
+    plt.savefig('figures/' + savefile +'.png', bbox_inches='tight')
 
 def graph_algo1(A, u, matrix_label, savefile, maxit=100, epsilon=1e-4):
     '''
