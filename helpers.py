@@ -371,10 +371,12 @@ def numerical_experiments(matrix, matrix_label, savefile):
     fig, axs=plt.subplots(2,1, figsize= (20,25), sharey = False, sharex = False)
     axs[0].bar(['algo_1_1e-8', 'algo_1_1e-5', 'algo_1_1e-1','algo_2_1e-8', 'algo_2_1e-5', 'algo_2_1e-1','tr(A-1)', 'lin. systems'], matrix_running_time)
     axs[0].set_yscale('log')
+    axs[0].set_ylabel('running time in seconds (in logscale)', fontsize=30)
     axs[0].set_title('running time differences for '+ matrix_label, fontsize=42)
     
     axs[1].bar(['algo_1_1e-8', 'algo_1_1e-5', 'algo_1_1e-1','algo_2_1e-8', 'algo_2_1e-5', 'algo_2_1e-1','tr(A-1)', 'lin. systems'], matrix_trace_value)
     axs[1].set_yscale('log')
+    axs[1].set_ylabel('computed value of the method (in logscale)', fontsize=30)
     axs[1].set_title('computed value differences for '+ matrix_label, fontsize=42)
     
     plt.savefig('figures/' + savefile +'.png')
