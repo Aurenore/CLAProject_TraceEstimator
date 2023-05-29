@@ -86,7 +86,7 @@ def check_ortho(X, tol=1e-8):
                     return False
     return True
 
-def algorithm_1(A, u, function, maxit=50, epsilon=1e-5):
+def algorithm_1(A, u, function, maxit=50, epsilon=1e-4, test_warning=False):
     # to do: save T_j as sparse
     '''
     Implements algorithm 1 from Bai et al. It computes a lower/upper bound of the quantity u^T f(A) u by using the Gauss-Radau rules
@@ -96,6 +96,7 @@ def algorithm_1(A, u, function, maxit=50, epsilon=1e-5):
     - f: smooth function in the interval [a,b]
     - maxit: maximum number of iteration
     - epsilon: tolerance between two iterations
+    - test_warning: when True, performs tests to ensure the convergence of the algorithm. 
     
     OUTPUT:
     - [U,L]: Upper and Lower bound of the quantity u^T f(A) u by using the Gauss-Radau rule.
@@ -105,14 +106,14 @@ def algorithm_1(A, u, function, maxit=50, epsilon=1e-5):
 
     if interval[0]<=0:
         interval[0] = 1e-4
-    #print("a=", interval[0])  Armelle: I've put these two as comments
-    #print("b=", interval[1])
-    if (np.linalg.eigvals(A)<=0).any():
-        warn("The matrix A should be positive definite.")
-        print("eigenvalues of A:", np.linalg.eigvals(A))
-    if not (A==A.T).all():
-        warn("A is not symmetric. Please choose A such that A=A.T")
-        print("A =",A)
+
+    if test_warning:
+        if (np.linalg.eigvals(A)<=0).any():
+            warn("The matrix A should be positive definite.")
+            print("eigenvalues of A:", np.linalg.eigvals(A))
+        if not (A==A.T).all():
+            warn("A is not symmetric. Please choose A such that A=A.T")
+            print("A =",A)
 
     # set the first variables
     x_j1 = u/np.linalg.norm(u)    
@@ -179,28 +180,29 @@ def algorithm_1(A, u, function, maxit=50, epsilon=1e-5):
         I_j1 = I_j.copy()
         gamma_j1 = gamma_j.copy()
         
-        if not check_ortho(X[:,0:j+1]):
+        if test_warning and (not check_ortho(X[:,0:j+1])):
             warn("The algorithm does not build an orthonormal basis, at j ="+str(j))
 
     return u.dot(u)*I_j   
 
-def algorithm_2(A, m, p, function, epsilon):
+def algorithm_2(A, m, p, function, epsilon, test_warning=False):
     '''
     A: a symmetric positive definite matrix of size n times n for some n  
     m: the chosen number of samples
     p: the chosen probabibilty for the confidence interval, the trace of function(A) will be in the bound with proba
        AT LEAST p 
+    test_warning: when True, performs tests to ensure the convergence of the algorithm. 
     
     return: I: an unbiased estimator of the quantity tr(f(A))
             (L_p, U_p): the bounds of the confidence interval of tr(f(A)) with proba p 
     '''
-    
-    if np.any(A!=A.T):
-        raise ValueError('The matrix isnt symmetric')
-        
-    if np.any(np.linalg.eigvals(A) <= 0):
-        raise ValueError('The matrix isnt positive definite')
-        
+    if test_warning:
+        if np.any(A!=A.T):
+            raise ValueError('The matrix isnt symmetric')
+            
+        if np.any(np.linalg.eigvals(A) <= 0):
+            raise ValueError('The matrix isnt positive definite')
+      
     if p<=0 or p>=1:
         raise ValueError('we dont have 0<p<1')
         
