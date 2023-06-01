@@ -17,7 +17,7 @@ def T_tilda(T, gamma, a):
     """
     e_j = np.zeros(T.shape[0])
     e_j[-1] = 1
-    delta = np.linalg.solve(T-a*np.eye(T.shape[0]), gamma*gamma*e_j) # tridiagonal system, could be written without np.linalg.solve maybe
+    delta = np.linalg.solve(T-a*np.eye(T.shape[0]), gamma*gamma*e_j)
     phi = a + delta[-1]
     temp_left = np.vstack((T, gamma*e_j))
     temp_right = np.expand_dims(np.append(gamma*e_j, phi),1)
@@ -87,7 +87,6 @@ def check_ortho(X, tol=1e-8):
     return True
 
 def algorithm_1(A, u, function, maxit=50, epsilon=1e-4, test_warning=False):
-    # to do: save T_j as sparse
     '''
     Implements algorithm 1 from Bai et al. It computes a lower/upper bound of the quantity u^T f(A) u by using the Gauss-Radau rules
     INPUT:
@@ -187,13 +186,16 @@ def algorithm_1(A, u, function, maxit=50, epsilon=1e-4, test_warning=False):
 
 def algorithm_2(A, m, p, function, epsilon, test_warning=False):
     '''
-    A: a symmetric positive definite matrix of size n times n for some n  
-    m: the chosen number of samples
-    p: the chosen probabibilty for the confidence interval, the trace of function(A) will be in the bound with proba
+    Implements algorithm 2 from Bai et al. 
+    INPUT:
+    - A: a symmetric positive definite matrix of size n times n for some n  
+    - m: the chosen number of samples
+    - p: the chosen probabibilty for the confidence interval, the trace of function(A) will be in the bound with proba
        AT LEAST p 
-    test_warning: when True, performs tests to ensure the convergence of the algorithm. 
+    - test_warning: when True, performs tests to ensure the convergence of the algorithm. 
     
-    return: I: an unbiased estimator of the quantity tr(f(A))
+    OUTPUT: 
+    - I: an unbiased estimator of the quantity tr(f(A))
             (L_p, U_p): the bounds of the confidence interval of tr(f(A)) with proba p 
     '''
     if test_warning:
@@ -247,9 +249,12 @@ def numerical_experiments(matrix, matrix_label, savefile):
     '''
     runs the numerical experiments and returns 2 array with the running time and the value found for each experiment
     
-        input: matrix: numpy array the matrix we want to study
-    
-        output: list of the running time for each numerical experiment for matrix list of the computed value
+    INPUT:
+    - matrix: numpy array the matrix we want to study
+    - matrix_label: string, label of the matrix that will be printed on the plot.
+    - savefile: name of the saving file.
+    OUTPUT: 
+    - list of the running time for each numerical experiment for matrix list of the computed value
     '''
     #defining the required values
     
@@ -325,8 +330,14 @@ def graph_algo2(matrix, Ms, f, I_ex, matrixlabel, savefile, ylabel):
     '''
     Plot the exact solutions and the estimations given by algorithm 2, applied on the matrix given as argument. 
 
-    matrix: numpy array the matrix we want to study
-    Ms: list of the parameter 'm' we would like to study 
+    INPUT:
+    - matrix: numpy array the matrix we want to study
+    - Ms: list of the parameter 'm' we would like to study 
+    - f: function
+    - I_ex: exact value
+    - matrixlabel: label of the matrix that will be printed on the plot
+    - savefile: name of the saved file
+    - ylabel: label on the y axis.
     '''
     #defining the required values
     
@@ -357,10 +368,13 @@ def graph_algo1(A, u, matrix_label, savefile, maxit=100, epsilon=1e-4):
     '''
     Plot the exact solution and the lower and upper bounds estimations of u^t A^{-1} u given by algorithm 1, applied on the matrix given as argument. 
 
-    matrix: numpy array the matrix we want to study
-    u: vector for the estimation of u^t A^{-1} u
-    matrix label: matrix label for the plot
-    savefile: string for the saved file. 
+    INPUT:
+    - A: numpy array the matrix we want to study
+    - u: vector for the estimation of u^t A^{-1} u
+    - matrix label: matrix label for the plot
+    - savefile: string for the saved file
+    - maxit: maximum number of iterations. Default: 100
+    - epsilon: tolerance for algorithm 1.
     '''
     U_p = np.zeros(maxit)
     L_p = np.zeros(maxit)
